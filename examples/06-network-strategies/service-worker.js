@@ -11,7 +11,9 @@ const offlineSVG = `<svg role="img" aria-labelledby="offline-title"
 
 function addToCache (request, response) {
   if (response.ok) {
-    return caches.open('content').then(cache => cache.put(request, response));
+    const copy = response.clone();
+    caches.open('content')
+      .then(cache => cache.put(request, copy));
   }
   return response;
 }
@@ -23,22 +25,26 @@ function findInCache (request) {
     return response;
   });
 }
+function fallbackImage () {
+  return new Response(offlineSVG,
+    { headers: { 'Content-Type': 'image/svg+xml'}});
+}
 
 self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate') {
-    return fetch(event.request)
-      .then(response => addToCache(event.request, response),
-            error    => findInCache(event.request))
-      .catch(error   => findInCache('offline.html'));
-  } else if (event.request.headers.get('Accept').indexOf('image') !== -1) {
-    return findInCache(event.request)
-      .catch(error => fetch(event.request))
-      .then(response => addToCache(event.request, response),
-            error => {
-              return new Response(offlineSVG,
-                { headers: { 'Content-Type': 'image/svg+xml'}}
-              );
-            }
-      );
+  const req = event.request;
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)                                   // 1. network-first
+        .then(res  => addToCache(req, res))        // 2. read-through caching
+        .catch(err => findInCache(req))            // 3. cache fallback
+        .catch(err => findInCache('offline.html')) // 4. offline fallback
+    );
+  } else if (req.headers.get('Accept').indexOf('image') !== -1) {
+    event.respondWith(
+      findInCache(req)                             // 1. cache-first
+        .catch(err => fetch(req))                  // 2. network fallback
+        .then(res  => addToCache(req, res),        // 3. read-through caching
+              err  => fallbackImage())             // 4. offline fallback
+    );
   }
 });
