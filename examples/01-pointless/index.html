@@ -7,11 +7,11 @@
 </head>
 <body>
 
-<p>The first time you load this page, you'll see this.</p>
+<p>The first time you load this page, you'll see this. It will likely look different when you reload.</p>
 
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
+  navigator.serviceWorker.register('service-worker.js', './');
 }
 </script>
 </body>

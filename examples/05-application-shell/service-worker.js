@@ -1,8 +1,8 @@
 /* global self, caches, URL, fetch */
 const appShellURLs = [
-  'thing1.jpg',
-  'thing2.jpg',
-  'thing3.jpg'
+  'offline.html',
+  '/05-application-shell/tree-zipline.gif',
+  '/05-application-shell/js.png'
 ];
 
 self.addEventListener('install', event => {
@@ -22,6 +22,13 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(error => fetch(event.request))
+    );
+  } else if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(error => {
+          return caches.match('offline.html');
+        })
     );
   }
 });

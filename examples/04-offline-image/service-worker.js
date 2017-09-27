@@ -11,7 +11,8 @@ const offlineSVG = `<svg role="img" aria-labelledby="offline-title"
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open('offline-fallbacks')
-  .then(cache => cache.add('offline.html'))
+    .then(cache => cache.add('offline.html'))
+    .then(() => self.skipWaiting())
   );
 });
 self.addEventListener('fetch', event => {
