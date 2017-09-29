@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Service Workers: Channel Messaging API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<p>Hey, there</p>
+
+<script>
+if ('serviceWorker' in navigator) {
+  function postMessage () {
+    const messageChannel = new MessageChannel();
+    messageChannel.port1.onmessage = event => console.log(event.data);
+    navigator.serviceWorker.controller.postMessage(
+      {cmd: 'identify'},
+      [messageChannel.port2]);
+  }
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => {
+      if (navigator.serviceWorker.controller) {
+        postMessage();
+      } else {
+        navigator.serviceWorker.addEventListener('controllerchange', postMessage);
+      }
+    });
+}
+</script>
+</body>
+</html>

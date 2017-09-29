@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Service Workers: Background Sync</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<a href="#" onclick="setSync()">Schedule a sync</a>
+
+<script>
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+  function setSync () {
+    navigator.serviceWorker.ready.then(reg => {
+      return reg.sync.register('my-tag');
+    });
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Service Workers: Push API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<p>Local example of Push API.</p>
+
+<script>
+function fakestKeyEver () {
+  const fakeOutputArray = new Uint8Array(65);
+  fakeOutputArray[0] = 0x04;
+  return fakeOutputArray;
+}
+const appKey = fakestKeyEver();
+
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(subscribeUser);
+}
+function subscribeUser (swRegistration) {
+  return swRegistration.pushManager.getSubscription()
+    .then(sub => {
+      if (sub === null && Notification.permission !== 'denied') {
+        return swRegistration.pushManager.subscribe({
+          userVisibleOnly     : true,
+          applicationServerKey: appKey
+        });
+      }
+    })
+}
+</script>
+</body>
+</html>

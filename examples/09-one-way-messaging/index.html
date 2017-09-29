@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Service Workers: Sending message client -> SW</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<p>Check out the console.log</p>
+
+<script>
+function postMessage () {
+  navigator.serviceWorker.controller.postMessage('Identify yourself!');
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => {
+      if (navigator.serviceWorker.controller) {
+        postMessage();
+      } else {
+        navigator.serviceWorker.addEventListener('controllerchange', postMessage);
+      }
+    });
+}
+</script>
+</body>
+</html>
